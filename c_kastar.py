@@ -25,6 +25,7 @@ class KAStar:
         self.start = start
         self.goals = goals
         self.grid = grid
+        self.counter_h = 0
         
     
     def run(self):
@@ -38,7 +39,7 @@ class KAStar:
         self.goals_active = set(self.goals) 
         self.closed = set()                     
         self.opened = Opened()
-        self.counter_heuristic = 0 
+        self.counter_h = 0
                
         self.best = Node(self.start)
         self._update_node(self.best,g=0)        
@@ -141,7 +142,6 @@ class KAStar:
         h = float('Infinity')
         for goal in self.goals_active:
             h = min(h, self._get_manhattan_distance(node,goal))
-            self.counter_heuristic += 1
         return h
         
     
@@ -158,6 +158,7 @@ class KAStar:
          Return: float (Manhattan Distance between Node and Goal).
         =======================================================================
         """
+        self.counter_h += 1
         return u_grid.manhattan_distance(self.grid, node.idd, goal)        
 
     

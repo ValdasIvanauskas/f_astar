@@ -1,8 +1,10 @@
 from pathlib import Path
-path_parent = Path(Path(__file__).parent)
+path_parent = Path(Path(Path(__file__).parent).parent)
+
 import sys
 sys.path.append(str(path_parent) + '\\f_utils')
 import u_set
+
 
 class Opened:
     """
@@ -17,11 +19,17 @@ class Opened:
             
         3. get_best(node) -> Node [Return the Best Node from Opened].
         
-        4. remove(node) -> None [Remove the Node from the Opened].
+        4. get(node) -> Node [Return Node if exist, Node otherwise].
         
-        5. push(node) -> None [Push the Node into Opened].
+        5. get_nodes() -> set of Node (Set of Nodes in Opened).
         
-        6. pop() -> Node [Return the Best Node and Remove it from the Opened].
+        6. remove(node) -> [Remove the Node from the Opened].
+        
+        7. push(node) -> [Push the Node into Opened].
+        
+        8. pop() -> Node [Return the Best Node and Remove it from the Opened].
+        
+        9. load(set) -> [Load set of Nodes].
     ===========================================================================
     """
     
@@ -85,6 +93,16 @@ class Opened:
         return u_set.get(self._opened, node)
     
     
+    def get_nodes(self):
+        """
+        =======================================================================
+         Description: Return Set of Nodes in Opened.
+        =======================================================================
+         Return: Set of Nodes in Opened.
+        =======================================================================
+        """
+        return self._opened
+    
     
     def remove(self, node):
         """
@@ -130,15 +148,13 @@ class Opened:
         return best
     
     
-    def get_nodes(self):
+    def load(self, opened):
         """
         =======================================================================
-         Description: Return the Opened Set.
-        =======================================================================
-         Return: set of Node.
+         Description: Load Opened with Set of Nodes.
         =======================================================================
         """
-        return self._opened
+        self._opened = opened.copy()
     
     
     def __str__(self):
@@ -220,6 +236,18 @@ def tester():
         
         u_tester.run([p0])
         
+    
+    def tester_get_nodes():
+
+        nodes_true = {1,2,3}
+        opened = Opened()   
+        for node in nodes_true:
+            opened.push(node)
+        nodes_test = opened.get_nodes()
+        p0 = nodes_test == nodes_true
+        
+        u_tester.run([p0])
+        
         
     def tester_remove():
         
@@ -253,18 +281,17 @@ def tester():
         u_tester.run([p0])
         
     
-    def tester_get_nodes():
-        
+    def tester_load():
+
+        nodes_true = {1,2,3}
         opened = Opened()
-        opened.push(1)
-        opened.push(2)
-        opened_test = opened.get_nodes()
-        
-        p0 = opened._opened == opened_test
-        
+        opened.load(nodes_true)
+        nodes_test = opened.get_nodes()
+        p0 = nodes_test == nodes_true
+
         u_tester.run([p0])
-        
-        
+ 
+       
     def tester_str():
         
         opened = Opened()
@@ -282,12 +309,14 @@ def tester():
     tester_remove()
     tester_get_best()
     tester_get()
+    tester_get_nodes()
     tester_push()
     tester_pop()
-    tester_get_nodes()
+    tester_load()
     tester_str()
     u_tester.print_finish(__file__)        
     
     
-#tester() 
+if __name__ == '__main__':
+    tester()
  

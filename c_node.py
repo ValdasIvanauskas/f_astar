@@ -72,7 +72,9 @@ class Node:
         if (self.f < other.f):
             return True
         if (self.f == other.f):
-            if (self.g >= other.g):
+            if (self.g > other.g):
+                return True
+            elif (self.g == other.g) and (self.idd < other.idd):
                 return True
         return False
     
@@ -302,6 +304,7 @@ def tester():
     u_tester.print_finish(__file__)       
     
     
-#tester()
+if __name__ == '__main__':
+    tester()
         
   

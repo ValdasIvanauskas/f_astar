@@ -1,12 +1,16 @@
-from c_node import Node
-from c_opened import Opened
+from pathlib import Path
+path_parent = str(Path(Path(__file__).parent).parent)
 
 import sys
-sys.path.append('D:\\MyPy\\f_grid\\')
+sys.path.append(path_parent + '\\f_utils')
+sys.path.append(path_parent + '\\f_grid')
 import u_grid
 
 
-class AStar:
+from c_node import Node
+from c_opened import Opened
+
+class AStar_H:
     """
     ===========================================================================
      Description: AStar
@@ -18,7 +22,7 @@ class AStar:
     """
     
     
-    def __init__(self, grid, start, goal):
+    def __init__(self, grid, start, goal, opened=set(), closed=set()):
         """
         ===================================================================
          Description: A* Algorithm.
@@ -36,10 +40,13 @@ class AStar:
         
         self.best = Node(start)
         self.best.g = 0
-        
-        self.closed = set()                     
+        self.best.f = 0
+            
+        self.closed = closed.copy()                     
         self.opened = Opened()
-        self.opened.push(self.best)   
+        self.opened.load(opened)
+        if self.opened.is_empty():
+            self.opened.push(self.best)   
         
         self._run()
     
@@ -57,6 +64,7 @@ class AStar:
         path = [node.idd]
         while (node.idd != self.start):
             node = node.father
+            if not node: return list()
             path.append(node.idd)
         path.reverse()
         return path            
@@ -68,14 +76,13 @@ class AStar:
          Description: Run A* Algorithm.
         =======================================================================
         """
-        while not (self.opened.is_empty()):
+        while not (self.opened.is_empty() or self.best.idd == self.goal):
             self.best = self.opened.pop()
             self.closed.add(self.best)
-            if (self.best.idd == self.goal):
-                return
-           
             self._expand()
-        self.best = None
+            
+        if self.opened.is_empty() and not self.best.idd == self.goal:
+            self.best = None
             
             
     def _expand(self):   
@@ -84,8 +91,7 @@ class AStar:
          Description: Expand the Best Node's Children.
         =======================================================================
         """     
-        row, col = u_grid.to_row_col(self.grid, self.best.idd)
-        idds = u_grid.get_neighbors(self.grid, row, col)
+        idds = u_grid.get_neighbors(self.grid, idd=self.best.idd)
         children = {Node(x) for x in idds} - self.closed      
         for child in sorted(children):
             if self.opened.contains(child):
@@ -142,7 +148,7 @@ def tester():
             random.shuffle(idds_valid)
             start = idds_valid[0]
             goal = idds_valid[1]
-            astar = AStar(grid,start,goal)
+            astar = AStar_H(grid,start,goal)
             len_optimal = u_grid.manhattan_distance(grid,start,goal)+1
             if len(astar.get_path()) != len_optimal:
                 p0 = False
@@ -150,12 +156,13 @@ def tester():
         p1 = True
         for i in range(1000):
             n = u_random.get_random_int(5,10)
+            n=4
             grid = u_grid.gen_obstacles_grid(n,30)
             idds_valid = u_grid.get_valid_idds(grid)
             random.shuffle(idds_valid)
             start = idds_valid[0]
             goal = idds_valid[1]
-            astar = AStar(grid,start,goal)
+            astar = AStar_H(grid,start,goal)
             dic_g = u_grid.to_dic_g(grid,start)
             len_optimal = dic_g.get(goal)
             if len_optimal:
@@ -171,9 +178,9 @@ def tester():
         grid = u_grid.gen_symmetric_grid(3)
         start = 0
         goal = 8
-        astar = AStar(grid, start, goal)
+        astar = AStar_H(grid, start, goal)
         astar_test = astar.get_path()
-        astar_true = [0,3,6,7,8]
+        astar_true = [0,1,2,5,8]
         p0 = astar_test == astar_true
         
         u_tester.run([p0])
